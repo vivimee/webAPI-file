@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>webAPI-File</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-size: 14px;
+        }
+        .btn {
+            box-sizing: border-box;
+            padding: 10px 20px;
+            margin: 10px 0;
+            display: inline-block;
+            background-color: forestgreen;
+            color: #fff;
+            border-radius: 4px;
+        }
+        .drop-box {
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px dashed #e1e1e1;
+            border-radius: 4px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <!-- input标签选择文件 -->
+    <input type="file" id="fileInput" multiple>
+    <br />
+
+    <!-- 隐藏input标签，利用label标签触发input标签的点击 -->
+    <label class="btn" for="hiddenFileInput">选择文件（隐藏input标签）</label><input type="file" id="hiddenFileInput" multiple style="display: none">
+
+    <!-- 拖拽选择文件区域 -->
+    <div class="drop-box" id="dropBox"><p>把文件拖进来</p></div>
+    
+
+    <script>
+        function handleFiles (e) {
+            console.log(e.target.files);
+            const files = e.target.files;
+            for (let i = 0; i < files.length; ++i) {
+                previewFile(files[i]);
+            }
+        }
+
+        function previewFile (file) {
+            console.log(file);
+            if (!/image/.test(file.type)) {
+                alert('非图片类型的文件，可在控制台查看');
+                return;
+            }
+            var img = document.createElement('img');
+            img.height = 100;
+            document.querySelector('#dropBox').appendChild(img);
+
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        (function() {
+            document.querySelector('#fileInput').addEventListener('change', handleFiles);
+        })();
+
+        (function() {
+            document.querySelector('#hiddenFileInput').addEventListener('change', handleFiles);
+        })();
+
+        (function() {
+            function noloop (e) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+            function onDrop (e) {
+                noloop(e);
+
+                const files = e.dataTransfer.files;
+                for (let i = 0; i < files.length; ++i) {
+                    previewFile(files[i]);
+                }
+            }
+            var dropBox = document.querySelector('#dropBox');
+            dropBox.addEventListener('dragenter', noloop);
+            dropBox.addEventListener('dragover', noloop);
+            dropBox.addEventListener('drop', onDrop);
+        })();
+
+    </script>
+</body>
+</html>
