@@ -1,0 +1,13 @@
+{
+  "name": "webAPI-file",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:vivimee/webAPI-file.git",
+  "author": "pengmengmeng <pengmengmeng@meituan.com>",
+  "license": "MIT",
+  "dependencies": {
+    "koa": "^2.6.2",
+    "koa-body": "^4.0.6",
+    "koa-router": "^7.4.0"
+  }
+}

@@ -40,6 +40,14 @@
     <!-- 拖拽选择文件区域 -->
     <div class="drop-box" id="dropBox"><p>把文件拖进来</p></div>
     
+    <!-- 选择文件并上传 -->
+    <div>
+        <label class="btn" for="uploadFileInput">选择文件并上传</label><input type="file" id="uploadFileInput" style="display: none">
+    </div>
+
+    <div>
+        <span class="btn" id="createAndDownloadCSVBtn">创建并导出csv文件</span>
+    </div>
 
     <script>
         function handleFiles (e) {
@@ -52,19 +60,55 @@
 
         function previewFile (file) {
             console.log(file);
-            if (!/image/.test(file.type)) {
-                alert('非图片类型的文件，可在控制台查看');
-                return;
+            if (/image/.test(file.type)) {
+                previewImg(file);
+            } else if (/pdf/.test(file.type)) {
+                previewPDF(file);
+            } else if (/(ogg)|(mp4)/.test(file.type)) {
+                previewVideo(file);
+            } else {
+                alert('请在控制台查看');
             }
+        }
+
+        function previewImg (file) {
+            var url = window.URL.createObjectURL(file);
             var img = document.createElement('img');
             img.height = 100;
+            img.src = url;
             document.querySelector('#dropBox').appendChild(img);
+        }
 
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+        function previewPDF (file) {
+            var url = window.URL.createObjectURL(file);
+            var frame = document.createElement('iframe');
+            frame.width = 200;
+            frame.height = 100;
+            frame.src = url;
+            document.querySelector('#dropBox').appendChild(frame);
+        }
+
+        function previewVideo (file) {
+            var url = window.URL.createObjectURL(file);
+            var video = document.createElement('video');
+            video.width = 200;
+            video.height = 100;
+            video.src = url;
+            document.querySelector('#dropBox').appendChild(video);
+            video.play();
+        }
+
+        function handleUpload (e) {
+            var file = e.target.files[0];
+            var formData = new FormData();
+            formData.append('formdataKey', file, file.name);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('post', 'http://localhost:7000/upload');
+            xhr.onload = function (res) {
+                console.log(res);
+            }
+            xhr.send(formData);
         }
 
         (function() {
@@ -94,6 +138,48 @@
             dropBox.addEventListener('drop', onDrop);
         })();
 
+        (function() {
+            document.querySelector('#uploadFileInput').addEventListener('change', handleUpload);
+        })();
+    
+        (function() {
+            var domString = `<html>
+                <head>
+                    <title>document</title>    
+                </head>
+                <body>
+                    <h3>Hello world</h3>    
+                </body>
+            </html>`;
+            var blob = new Blob([domString], { type: 'text/html' });
+            var blobUrl = URL.createObjectURL(blob);
+
+            var f = document.createElement('iframe');
+            f.src = blobUrl;
+            document.body.appendChild(f);
+        })();
+    
+        (function() {
+            function createAndDownloadCSV() {
+                var header = ['id', '姓名', '爱好'];
+                var data = [
+                    { id: 1, name: '张三', favirote: '钓鱼' },
+                    {  id: 2, name: '李四', favirote: '旅行' },
+                    { id: 3, name: '王五', favirote: '听音乐' }
+                ]
+                var csvStr = `${header.join(',')}\n${data.map((line) => line.id + ',' + line.name + ',' + line.favirote).join('\n')}`;
+                var blob = new Blob([csvStr], { type: 'text/csv' });
+                var blobUrl = URL.createObjectURL(blob);
+                
+                var a = document.createElement('a');
+                a.download = `${new Date().toLocaleDateString()}-测试.csv`;
+                a.href = blobUrl;
+                document.body.appendChild(a);
+                a.click();
+            }
+
+            document.querySelector('#createAndDownloadCSVBtn').addEventListener('click', createAndDownloadCSV);
+        })();
     </script>
 </body>
 </html>
