@@ -144,6 +144,7 @@ function handleUpload (e) {
 ## 文件创建和下载
 webAPI里的 Blob 能够帮助我们在前端直接创建文件，在继续之前强烈建议阅读了解一下[理解DOMString、Document、FormData、Blob、File、ArrayBuffer数据类型](https://www.zhangxinxu.com/wordpress/2013/10/understand-domstring-document-formdata-blob-file-arraybuffer/)。  
 
+### 创建文件
 ```js
 // 语法
 var aBlob = new Blob( array, options );
@@ -171,11 +172,38 @@ var f = document.createElement('iframe');
 f.src = blobUrl;
 document.body.appendChild(f);
 ```
+### 下载文件
+下载文件可以利用`a`标签的 `download` 属性：
+```html
+<a download="a.html" href="blob:...">下载</a>
+```
+需要注意的是，如果是网络地址，则需要是同域名下的文件才能这样下载。  
 对于通过 `ajax` 请求获取到的二进制数据也可以通过上面的方式生成blob对象，并用适当的标签展示，比如图片、视频资源。另一个应用是前端直接导出表格里的数据到本地：
+```html
+<span class="btn" id="createAndDownloadCSVBtn">创建并导出csv文件</span>
+```
 ```js
+function createAndDownloadCSV() {
+    var header = ['id', '姓名', '爱好'];
+    var data = [
+        { id: 1, name: '张三', favirote: '钓鱼' },
+        {  id: 2, name: '李四', favirote: '旅行' },
+        { id: 3, name: '王五', favirote: '听音乐' }
+    ]
+    var csvStr = `${header.join(',')}\n${data.map((line) => line.id + ',' + line.name + ',' + line.favirote).join('\n')}`;
+    var blob = new Blob([csvStr], { type: 'text/csv' });
+    var blobUrl = URL.createObjectURL(blob);
+    
+    var a = document.createElement('a');
+    a.download = `${new Date().toLocaleDateString()}-测试.csv`;
+    a.href = blobUrl;
+    document.body.appendChild(a);
+    a.click();
+}
 
+document.querySelector('#createAndDownloadCSVBtn').addEventListener('click', createAndDownloadCSV);
 ```
 
 ## 参考资料
-1. [https://www.zhangxinxu.com/wordpress/2013/10/understand-domstring-document-formdata-blob-file-arraybuffer/](https://www.zhangxinxu.com/wordpress/2013/10/understand-domstring-document-formdata-blob-file-arraybuffer/)
-2. [https://developer.mozilla.org/zh-CN/docs/Web/API/URL/URL](https://developer.mozilla.org/zh-CN/docs/Web/API/URL/URL)
+1. [理解DOMString、Document、FormData、Blob、File、ArrayBuffer数据类型](https://www.zhangxinxu.com/wordpress/2013/10/understand-domstring-document-formdata-blob-file-arraybuffer/)
+2. [MDN-URL()](https://developer.mozilla.org/zh-CN/docs/Web/API/URL/URL)

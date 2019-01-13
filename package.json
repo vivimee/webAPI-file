@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "repository": "git@github.com:vivimee/webAPI-file.git",
-  "author": "pengmengmeng <pengmengmeng@meituan.com>",
+  "author": "vivimee@163.com",
   "license": "MIT",
   "dependencies": {
     "koa": "^2.6.2",
